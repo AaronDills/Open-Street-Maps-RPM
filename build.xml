@@ -1,0 +1,88 @@
+<project name="rpms.osm" default="rpm" basedir=".." 
+	xmlns:rl="antlib:org.redline_rpm" 
+	xmlns:if="ant:if" 
+	xmlns:unless="ant:unless"
+	xmlns:ivy="antlib:org.apache.ivy.ant"
+>
+	<available 
+		property="build.imports.main" 
+		value="${basedir}/build.main.xml"
+		file="${basedir}/build.main.xml" />
+	<property name="build.imports.main" location="${basedir}/../build.environment/build.main.xml" />
+	<import file="${build.imports.main}" />
+	
+	<property name="version" value="1" />
+	<property name="release" value="2" />
+	
+	<target name="build-rpm">
+		<rl:rpm 
+	    	group="System Environment/Base"
+			name="ss-galera" 
+			version="${version}"
+			release="${release}"
+			architecture="X86_64"
+			sourcePackage="none.src.rpm"
+			license="private"
+			summary="MariaDB Galera Cluster Server Installation and Setup"
+			description="An installation of MariaDB that sets up Galera and joins the server to a cluster"
+			destination="${basedir}/mariadb-galera-cluster/dist"
+			preInstallScript="_script/prein.sh"
+			postUninstallScript="_script/postun.sh"
+   		 >
+			
+			<depends name="boost-devel" />
+			<depends name="bzip2-devel" />
+			<depends name="ccache" />
+			<depends name="clang-tools-extra" />
+			<depends name="cmake" />
+		    <depends name="expat-devel" />
+			<depends name="gdal32" />
+			<depends name="dejavu-fonts-all" />
+			<depends name="git" />
+			<depends name="gcc" />
+			<depends name="gcc-c++" />
+			<depends name="libicu-dev" />
+			<depends name="libtool" />
+			<depends name="libpq-devel" />
+			<depends name="make" />
+			<depends name="npm" />			
+			<depends name="php-pgsql" />
+			<depends name="php" />
+			<depends name="php-intl" />
+			<depends name="php-json" />
+			<depends name="postgresql12-server" />
+			<depends name="postgresql12-contrib" />
+			<depends name="postgresql12-devel" />
+			<depends name="postgis30_12" />
+			<depends name="policycoreutils-python-util" />
+			<depends name="proj72" />
+			<depends name="proj72-devel" />
+			<depends name="python3-devel" />
+			<depends name="python3-pip" />
+			<depends name="python3-setuptools" />
+		    <depends name="shambaugh-fedora-repo" />
+			<depends name="wget" />
+			<depends name="zlib-devel" />
+			
+			<rpmFileSet prefix="/etc/certs/" config="true" file="${basedir}/mariadb-galera-cluster/etc/certs/mariadbCA.crt" />
+			<rpmFileSet prefix="/etc/certs/" config="true" file="${basedir}/mariadb-galera-cluster/etc/certs/mariadbCA.key" />
+			<rpmFileSet prefix="/etc/cron.daily/" config="true" file="${basedir}/mariadb-galera-cluster/etc/cron.daily/mariadb.backup.sh" fileMode="0777"/>
+			<rpmFileSet prefix="/etc/my.cnf.d/" config="true" file="${basedir}/mariadb-galera-cluster/build/galera_shambaugh.cnf" />
+			<rpmFileSet prefix="/etc/my.cnf.d/" config="true" file="${basedir}/mariadb-galera-cluster/etc/my.cnf.d/shambaugh.cnf" />
+			<rpmFileSet prefix="/etc/pam.d/" config="true" file="${basedir}/mariadb-galera-cluster/etc/pam.d/mysql" />			
+			<rpmFileSet prefix="/usr/lib/firewalld/services/" config="true" file="${basedir}/mariadb-galera-cluster/usr/lib/firewalld/services/galera.xml" />
+			<rpmFileSet prefix="/etc/logrotate.d/" config="true" file="${basedir}/mariadb-galera-cluster/etc/logrotate.d/mysql" />
+			<rpmFileSet prefix="/etc/systemd/system/mariadb.service.d/" config="true" file="${basedir}/mariadb-galera-cluster/etc/systemd/system/mariadb.service.d/mariadb_service_dropin.cnf" />
+			<rpmFileSet prefix="/usr/local/bin/" config="true" file="${basedir}/mariadb-galera-cluster/build/galera_addons.sh" fileMode="0777" />
+			<rpmFileSet prefix="/usr/bin/" config="false" file="${basedir}/mariadb-galera-cluster/usr/bin/wsrep_sst_rsync_ss" fileMode="0777" />
+
+		</rl:rpm>
+	</target>
+	
+	<target name="cleanup">
+		<delete dir="${basedir}/mariadb-galera-cluster/build"/> 
+	</target>
+		
+	<target name="rpm" depends="-init, build-rpm, cleanup" description="Creates rpm for mariadb-galera-cluster"/>
+
+</project>
