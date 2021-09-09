@@ -17,7 +17,7 @@
 	<target name="build-rpm">
 		<rl:rpm 
 	    	group="System Environment/Base"
-			name="ss-galera" 
+			name="osm" 
 			version="${version}"
 			release="${release}"
 			architecture="X86_64"
